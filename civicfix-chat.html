@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicFix — Report a Civic Issue</title>
+<style>
+  :root {
+    --navy: #1B2A3A;
+    --teal: #028090;
+    --seafoam: #00A896;
+    --mint: #02C39A;
+    --offwhite: #F7FAFA;
+    --slate: #445560;
+    --white: #FFFFFF;
+    --border: #E1E8E7;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Calibri, system-ui, sans-serif;
+    background: var(--offwhite);
+    color: var(--navy);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    max-height: 780px;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(27,42,58,0.15);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: Cambria, Georgia, serif;
+    font-size: 19px;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  header p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #9FB4BF;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mint);
+    margin-left: auto;
+    box-shadow: 0 0 0 3px rgba(2,195,154,0.2);
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--offwhite);
+  }
+
+  .msg {
+    max-width: 82%;
+    padding: 12px 15px;
+    border-radius: 14px;
+    font-size: 14.5px;
+    line-height: 1.45;
+    animation: slideIn 0.25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.bot {
+    background: var(--white);
+    border: 1px solid var(--border);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    color: var(--navy);
+  }
+
+  .msg.user {
+    background: var(--teal);
+    color: var(--white);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.typing {
+    background: var(--white);
+    border: 1px solid var(--border);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    display: flex;
+    gap: 4px;
+    padding: 14px 16px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--slate);
+    opacity: 0.4;
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.15s; }
+  .dot:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .composer {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    background: var(--white);
+    flex-shrink: 0;
+  }
+
+  .composer input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 12px 18px;
+    font-size: 14.5px;
+    outline: none;
+    font-family: inherit;
+    background: var(--offwhite);
+    color: var(--navy);
+  }
+
+  .composer input:focus {
+    border-color: var(--teal);
+  }
+
+  .composer button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--teal);
+    color: var(--white);
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .composer button:hover { background: var(--seafoam); }
+  .composer button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .config-banner {
+    background: #FFF4E5;
+    color: #7A4B00;
+    font-size: 12px;
+    padding: 8px 16px;
+    text-align: center;
+    border-bottom: 1px solid #F0D9A6;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div id="configBanner" class="config-banner">
+    ⚠️ Set your n8n webhook URL in the WEBHOOK_URL variable near the top of the script.
+  </div>
+  <header>
+    <div class="header-icon">🏙️</div>
+    <div>
+      <h1>CivicFix</h1>
+      <p>Report a civic issue</p>
+    </div>
+    <div class="status-dot" title="Online"></div>
+  </header>
+
+  <div class="messages" id="messages">
+    <div class="msg bot">
+      Welcome to CivicFix. Tell me what's happening in your area — a pothole, garbage pile-up, broken streetlight, or water issue — and I'll take care of the rest.
+    </div>
+  </div>
+
+  <form class="composer" id="composer">
+    <input type="text" id="userInput" placeholder="Describe the issue..." autocomplete="off" required />
+    <button type="submit" id="sendBtn" aria-label="Send">➤</button>
+  </form>
+</div>
+
+<script>
+  // ====================================================================
+  // CONFIG — replace this with your n8n Chat Trigger's production
+  // webhook URL. In n8n: open the "When chat message received" node,
+  // copy the "Production URL" (not the Test URL) after publishing
+  // your workflow. It looks like:
+  // http://localhost:5678/webhook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/chat
+  // ====================================================================
+  const WEBHOOK_URL = "PASTE_YOUR_N8N_WEBHOOK_URL_HERE";
+
+  const messagesEl = document.getElementById('messages');
+  const form = document.getElementById('composer');
+  const input = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const configBanner = document.getElementById('configBanner');
+
+  // Generate a stable session ID for this browser tab's conversation
+  const sessionId = 'web-' + Math.random().toString(36).slice(2) + Date.now();
+
+  if (WEBHOOK_URL.includes('PASTE_YOUR')) {
+    configBanner.style.display = 'block';
+  }
+
+  function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + sender;
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg typing';
+    div.id = 'typingIndicator';
+    div.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, 'user');
+    input.value = '';
+    sendBtn.disabled = true;
+    addTyping();
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chatInput: text,
+          sessionId: sessionId,
+          action: 'sendMessage'
+        })
+      });
+
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
+
+      const data = await response.json();
+      removeTyping();
+      console.log('n8n response:', data); // temporary debug line
+
+      // n8n chat responses can come back as an object OR an array
+      // containing one object, depending on workflow setup.
+      const payload = Array.isArray(data) ? data[0] : data;
+      const reply = (payload && (payload.output || payload.text || payload.message))
+        || "Sorry, I didn't get a response. Please try again.";
+      addMessage(reply, 'bot');
+    } catch (err) {
+      removeTyping();
+      addMessage("Couldn't reach CivicFix right now. Please check your connection and try again.", 'bot');
+      console.error(err);
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  });
+
+  input.focus();
+</script>
+
+</body>
+</html>

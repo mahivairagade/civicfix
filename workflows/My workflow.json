@@ -1,0 +1,1078 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4e9be30b-e3d0-4324-bb7f-ea1c2d5f7258",
+      "name": "When chat message received",
+      "webhookId": "42515041-048b-414c-99db-fb3ca34220b8"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are CivicFix, a friendly assistant that helps citizens report civic issues like potholes, garbage piles, broken streetlights, and water leakage.\n\nFor every message from the citizen, do the following:\n1. Identify the issue category — choose one of: Pothole, Garbage, Streetlight, Water, Other\n2. Identify the urgency — choose one of: Low, Medium, High (High = immediate safety hazard, e.g. exposed wiring, deep pothole on a busy road)\n3. Check if a location or landmark is mentioned. If not, ask the citizen for it before continuing.\n4. Once you have category, urgency, and location, reply with a short confirmation summary in this format:\n   \"Got it. Filing a [urgency] priority [category] complaint at [location]. Filing your complaint now.\"\n\nKeep your responses short, warm, and conversational — no long paragraphs. Never ask more than one question at a time."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "49b65b28-5e92-47a2-bb87-6236674d2be9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        384,
+        224
+      ],
+      "id": "acbc6145-c143-4f40-ae0e-132e1e01cd74",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "nRyjUMcEIxUmyzqD",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        496,
+        224
+      ],
+      "id": "568f84ad-30f5-402d-8c0a-d62f241d2780",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app2QCpdeJTZAsJeG",
+          "mode": "list",
+          "cachedResultName": "CivicFix",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl40Vk6MQxxSr6Ni",
+          "mode": "list",
+          "cachedResultName": "Complaints",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG/tbl40Vk6MQxxSr6Ni"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "category": "={{ $('Code in JavaScript').item.json.category }}",
+            "urgency": "={{ $('Code in JavaScript').item.json.urgency }}",
+            "location": "= {{ $('Code in JavaScript').item.json.location }}",
+            "status": "=Submitted",
+            "Name": "={{ $('Code in JavaScript').item.json.description }}",
+            "report_count": 1,
+            "case_id": "={{ $('Code in JavaScript').item.json.case_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pothole",
+                  "value": "Pothole"
+                },
+                {
+                  "name": "Garbage",
+                  "value": "Garbage"
+                },
+                {
+                  "name": "Streetlight",
+                  "value": "Streetlight"
+                },
+                {
+                  "name": "Water",
+                  "value": "Water"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "urgency",
+              "displayName": "urgency",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Low",
+                  "value": "Low"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "High",
+                  "value": "High"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Submitted",
+                  "value": "Submitted"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Resolved",
+                  "value": "Resolved"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                },
+                {
+                  "name": "The issue to be reported is currently unspecified.",
+                  "value": "The issue to be reported is currently unspecified."
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_count",
+              "displayName": "report_count",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "case_id",
+              "displayName": "case_id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1648,
+        176
+      ],
+      "id": "66fe24f4-10ad-4525-a2b0-3ce78931c304",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7VAh24zYA0o2UOic",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract structured data from this conversation. Reply with ONLY valid JSON, no explanation, no markdown formatting, no backticks, no extra text.\n\nConversation: {{ $json.output }}\n\nReturn exactly this JSON shape:\n{\n  \"category\": \"Pothole\" or \"Garbage\" or \"Streetlight\" or \"Water\" or \"Other\",\n  \"urgency\": \"Low\" or \"Medium\" or \"High\",\n  \"location\": \"string\",\n  \"description\": \"one sentence summary of the issue\"\n}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        768,
+        0
+      ],
+      "id": "b2f65c75-a3f2-465a-9860-420038eb2d3c",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        768,
+        208
+      ],
+      "id": "7401c698-a278-4664-9b05-754444124d92",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "nRyjUMcEIxUmyzqD",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $input.first().json.text;\nraw = raw.trim().replace(/^```json/i, '').replace(/```$/, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = { category: \"Other\", urgency: \"Medium\", location: \"Unknown\", description: raw };\n}\n\n// Generate a short, human-friendly case ID\nparsed.case_id = \"CF-\" + Math.floor(1000 + Math.random() * 9000);\n\nreturn [{ json: parsed }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "fcc8b023-bf3a-410e-899d-8e5f3ee73461",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app2QCpdeJTZAsJeG",
+          "mode": "list",
+          "cachedResultName": "CivicFix",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl40Vk6MQxxSr6Ni",
+          "mode": "list",
+          "cachedResultName": "Complaints",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG/tbl40Vk6MQxxSr6Ni"
+        },
+        "filterByFormula": "=AND({category} = '{{ $json.category }}', {status} != 'Resolved')",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "2665de0e-da9c-4d77-8da0-57bf3a97cf30",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7VAh24zYA0o2UOic",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a67ab087-e733-447f-bb37-2f1f7ac37b98",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "1f672203-4906-46d0-9ef8-5c009b07ad78",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app2QCpdeJTZAsJeG",
+          "mode": "list",
+          "cachedResultName": "CivicFix",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl40Vk6MQxxSr6Ni",
+          "mode": "list",
+          "cachedResultName": "Complaints",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG/tbl40Vk6MQxxSr6Ni"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "report_count": "={{ ($json.fields.report_count || 0) + 1 }}",
+            "case_id": "={{ $('Search records').item.json.fields.case_id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pothole",
+                  "value": "Pothole"
+                },
+                {
+                  "name": "Garbage",
+                  "value": "Garbage"
+                },
+                {
+                  "name": "Streetlight",
+                  "value": "Streetlight"
+                },
+                {
+                  "name": "Water",
+                  "value": "Water"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "urgency",
+              "displayName": "urgency",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Low",
+                  "value": "Low"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "High",
+                  "value": "High"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Submitted",
+                  "value": "Submitted"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Resolved",
+                  "value": "Resolved"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                },
+                {
+                  "name": "The issue to be reported is currently unspecified.",
+                  "value": "The issue to be reported is currently unspecified."
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "report_count",
+              "displayName": "report_count",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "case_id",
+              "displayName": "case_id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        -16
+      ],
+      "id": "2e2d646d-f454-4036-9ec8-8712147f2d42",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7VAh24zYA0o2UOic",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1840,
+        -16
+      ],
+      "id": "bcaf1974-85f3-4ee8-9299-cbfeb22c205d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f2c563b6-db6a-4592-a4d4-41283ba91bb6",
+              "name": "output",
+              "value": "={{ $('AI Agent').item.json.output }} Your case ID is {{ $json.fields ? $json.fields.case_id : $json.case_id }} — you can ask me for updates anytime using this number.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        -16
+      ],
+      "id": "c38fa2ed-5aac-432d-80d9-b84f7ca55c3f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0bce3721-e309-477d-b124-aba9e21a9d81",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "/CF-\\d+/i",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        160,
+        0
+      ],
+      "id": "44d539b7-c6d8-47fc-956b-50cafad4b68d",
+      "name": "Is Status Check"
+    },
+    {
+      "parameters": {
+        "jsCode": "const match = $json.chatInput.match(/CF-\\d+/i);\n   return [{ json: { case_id: match ? match[0].toUpperCase() : null } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -160
+      ],
+      "id": "4847831e-518f-47f8-8f14-7838723c554a",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app2QCpdeJTZAsJeG",
+          "mode": "list",
+          "cachedResultName": "CivicFix",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl40Vk6MQxxSr6Ni",
+          "mode": "list",
+          "cachedResultName": "Complaints",
+          "cachedResultUrl": "https://airtable.com/app2QCpdeJTZAsJeG/tbl40Vk6MQxxSr6Ni"
+        },
+        "filterByFormula": "=LOWER(TRIM({case_id})) = LOWER(TRIM('{{ $json.case_id }}'))",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        -160
+      ],
+      "id": "de398198-53b9-4d31-8adc-a153991b93ff",
+      "name": "Search records1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "lNVZHQgKLXhDTlGR",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3306a807-e878-4b3b-a040-4f9515128f1e",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        736,
+        -160
+      ],
+      "id": "ea086ff0-3975-45ac-88fd-48956ec96132",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0a1c91d9-46f1-49ba-8409-688060c352b7",
+              "name": "output",
+              "value": " I couldn't find a case with that ID. Please double-check the case number and try again.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        -144
+      ],
+      "id": "57ae6eb8-10e6-4038-97b6-9cbe8504dcbe",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b8b9bd16-75c8-42d5-85d5-f33723c5ed6b",
+              "name": "=output",
+              "value": "={{ 'Case ' + $json.fields.case_id + ' is currently: ' + $json.fields.status + '. Filed as a ' + $json.fields.urgency + ' priority ' + $json.fields.category + ' issue at ' + $json.fields.location + '.' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        -288
+      ],
+      "id": "c5e46556-c088-4b87-b55b-8ecc10efaed4",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "638c223b-9b7a-4ed5-bbf7-32f78c5450c7",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Filing your complaint now",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        912,
+        144
+      ],
+      "id": "ee051c25-92c9-4326-8f0a-2145b18e2297",
+      "name": "Ready to File?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4bb8c4c2-6df8-4658-ba0b-75d480debdd0",
+              "name": "=output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        240
+      ],
+      "id": "6694dfc7-b1d3-4078-b92a-ad07ceb6f762",
+      "name": "Edit Fields3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Is Status Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Ready to File?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Status Check": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Search records1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready to File?": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b8bf5ad0-4932-4a15-ae43-aa0a775dd85f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7548a3b423a0be3d95f0b82c983d2dbfe880da24fb2cdd9802f255eb757cc524"
+  },
+  "nodeGroups": [],
+  "id": "XZM9Pfeyt0p00Tmb",
+  "tags": []
+}

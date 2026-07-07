@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicFix — Report it. We'll take it from here.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EFF2ED;
+    --paper-card: #FBFBF9;
+    --ink: #14213D;
+    --ink-soft: #4C5A76;
+    --line: #C3CDD9;
+    --line-soft: #DCE3E0;
+    --amber: #FFB627;
+    --amber-deep: #E39A0C;
+    --teal: #0E7C7B;
+    --coral: #E4572E;
+    --radius: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 44px 44px;
+    background-attachment: fixed;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  img, svg { display: block; max-width: 100%; }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+
+  h1, h2, h3, .display {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1.02;
+  }
+
+  .mono {
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--amber-deep);
+    outline-offset: 2px;
+  }
+
+  /* ---------- STAMP ---------- */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 7px 16px 7px 14px;
+    border: 2.5px solid currentColor;
+    border-radius: 3px;
+    transform: rotate(-3deg);
+    position: relative;
+  }
+  .stamp::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .stamp.amber { color: var(--amber-deep); }
+  .stamp.teal { color: var(--teal); }
+  .stamp.coral { color: var(--coral); }
+
+  /* ---------- NAV ---------- */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(239,242,237,0.88);
+    backdrop-filter: blur(8px);
+    border-bottom: 1.5px solid var(--line);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px;
+    max-width: 1160px; margin: 0 auto;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800; font-size: 22px; letter-spacing: 0.01em;
+  }
+  .logo-mark {
+    width: 30px; height: 30px;
+    background: var(--ink);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--amber);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; font-weight: 600;
+  }
+  nav.links { display: flex; gap: 28px; }
+  nav.links a {
+    font-size: 14px; font-weight: 600; color: var(--ink-soft);
+    padding: 6px 2px; border-bottom: 2px solid transparent;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  nav.links a:hover { color: var(--ink); border-color: var(--amber); }
+  .btn-gh {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--ink); color: var(--paper);
+    padding: 9px 18px; border-radius: 4px;
+    font-size: 13.5px; font-weight: 600;
+    transition: background 0.15s;
+  }
+  .btn-gh:hover { background: var(--teal); }
+  @media (max-width: 760px) { nav.links { display: none; } }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    padding: 72px 0 60px;
+  }
+  .hero-grid {
+    display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px; color: var(--teal); font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .eyebrow .sq { width: 8px; height: 8px; background: var(--teal); }
+  .hero h1 { font-size: 58px; color: var(--ink); margin-bottom: 20px; }
+  .hero h1 .accent { color: var(--amber-deep); }
+  .hero p.lede {
+    font-size: 17.5px; color: var(--ink-soft); max-width: 480px; margin-bottom: 28px;
+  }
+  .hero-ctas { display: flex; gap: 14px; margin-bottom: 34px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+    padding: 14px 26px; border-radius: 4px;
+    font-weight: 700; font-size: 15px;
+    border: 2px solid var(--ink);
+    transition: transform 0.12s, background 0.15s;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--teal); border-color: var(--teal); transform: translateY(-1px); }
+  .btn-secondary {
+    background: transparent; color: var(--ink);
+    padding: 14px 26px; border-radius: 4px;
+    font-weight: 700; font-size: 15px;
+    border: 2px solid var(--ink);
+    transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: var(--paper-card); }
+
+  .stat-strip { display: flex; gap: 30px; flex-wrap: wrap; }
+  .stat b {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 26px; color: var(--ink); display: block;
+  }
+  .stat span { font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ---------- KIOSK (chat) ---------- */
+  .kiosk {
+    background: var(--paper-card);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    box-shadow: 8px 8px 0 rgba(20,33,61,0.08);
+    overflow: hidden;
+  }
+  .kiosk-head {
+    background: var(--ink); color: var(--paper);
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .kiosk-head .title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px; letter-spacing: 0.08em;
+  }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--amber);
+    box-shadow: 0 0 0 3px rgba(255,182,39,0.25);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+  #configBanner {
+    display: none;
+    background: #FFF4D9; color: #7A4B00;
+    font-size: 12px; padding: 8px 16px; text-align: center;
+    border-bottom: 1px solid #F0D9A6;
+  }
+
+  .messages {
+    height: 340px; overflow-y: auto;
+    padding: 18px; display: flex; flex-direction: column; gap: 12px;
+    background:
+      repeating-linear-gradient(transparent, transparent 27px, var(--line-soft) 28px);
+  }
+  .msg { max-width: 84%; padding: 11px 14px; border-radius: 3px; font-size: 14px; line-height: 1.45; }
+  .msg.bot { background: var(--paper); border: 1.5px solid var(--line); align-self: flex-start; }
+  .msg.user { background: var(--ink); color: var(--paper); align-self: flex-end; }
+  .msg.typing { display: flex; gap: 4px; background: var(--paper); border: 1.5px solid var(--line); align-self: flex-start; padding: 13px 15px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-soft); opacity: 0.4; animation: bounce 1.2s infinite; }
+  .dot:nth-child(2){animation-delay:.15s;} .dot:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.4;} 30%{transform:translateY(-4px);opacity:1;} }
+
+  .composer { display: flex; gap: 8px; padding: 14px; border-top: 2px solid var(--ink); background: var(--paper-card); }
+  .composer input {
+    flex: 1; border: 1.5px solid var(--line); border-radius: 4px;
+    padding: 11px 14px; font-size: 14px; font-family: inherit;
+    background: var(--paper); color: var(--ink); outline: none;
+  }
+  .composer input:focus { border-color: var(--teal); }
+  .composer button {
+    width: 42px; background: var(--amber); border: none; border-radius: 4px;
+    color: var(--ink); font-size: 17px; cursor: pointer; font-weight: 700;
+  }
+  .composer button:hover { background: var(--amber-deep); }
+  .composer button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- SECTION shared ---------- */
+  section { padding: 84px 0; }
+  .section-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--teal);
+    font-weight: 600; margin-bottom: 12px; display: block;
+  }
+  .section-head h2 { font-size: 38px; color: var(--ink); margin-bottom: 14px; }
+  .section-head p { color: var(--ink-soft); font-size: 16px; max-width: 560px; }
+
+  /* ---------- PROBLEM ---------- */
+  .case-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 44px; }
+  .case-card {
+    background: var(--paper-card); border: 1.5px solid var(--line);
+    border-radius: 6px; padding: 26px; position: relative;
+  }
+  .case-card .case-no { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); margin-bottom: 14px; }
+  .case-card h3 { font-size: 20px; color: var(--ink); margin-bottom: 10px; text-transform: none; }
+  .case-card p { font-size: 14.5px; color: var(--ink-soft); }
+
+  .stat-block {
+    margin-top: 40px; background: var(--ink); color: var(--paper);
+    border-radius: 8px; padding: 34px 38px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 30px; align-items: center;
+  }
+  .stat-block .big { font-family: 'IBM Plex Mono', monospace; font-size: 46px; color: var(--amber); }
+  .stat-block .divider { width: 1.5px; height: 60px; background: rgba(255,255,255,0.2); }
+  .stat-block p { font-size: 13.5px; color: #C9D3E5; }
+
+  @media (max-width: 900px) {
+    .case-cards { grid-template-columns: 1fr; }
+    .stat-block { grid-template-columns: 1fr; text-align: left; }
+    .stat-block .divider { display: none; }
+  }
+
+  /* ---------- FLOW (how it works) ---------- */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 44px; }
+  .flow-step {
+    background: var(--paper-card); border: 1.5px solid var(--ink);
+    border-radius: 6px; padding: 24px 20px; position: relative;
+  }
+  .flow-step .tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--teal);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; display: block;
+  }
+  .flow-step h4 { font-size: 17px; color: var(--ink); margin-bottom: 8px; text-transform: none; font-weight: 700; font-family: 'Inter'; }
+  .flow-step p { font-size: 13.5px; color: var(--ink-soft); }
+  .flow-step:not(:last-child)::after {
+    content: '→'; position: absolute; right: -26px; top: 50%; transform: translateY(-50%);
+    color: var(--line); font-size: 20px; font-weight: 700;
+  }
+  @media (max-width: 900px) {
+    .flow { grid-template-columns: 1fr; }
+    .flow-step::after { display: none; }
+  }
+
+  /* ---------- STANDOUT (dedupe) ---------- */
+  .dedupe-demo {
+    margin-top: 44px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center;
+  }
+  .ticket {
+    background: var(--paper-card); border: 1.5px dashed var(--line);
+    border-radius: 6px; padding: 18px 20px; font-size: 13.5px; color: var(--ink-soft);
+  }
+  .ticket .who { font-weight: 700; color: var(--ink); margin-bottom: 4px; font-size: 14px; }
+  .merge-arrow { font-family: 'IBM Plex Mono', monospace; color: var(--amber-deep); font-size: 22px; text-align: center; }
+  .ticket.merged {
+    border: 2.5px solid var(--teal); background: #F2F9F8;
+  }
+  .ticket.merged .stamp { margin-top: 10px; }
+  @media (max-width: 900px) {
+    .dedupe-demo { grid-template-columns: 1fr; }
+    .merge-arrow { transform: rotate(90deg); }
+  }
+
+  /* ---------- ARCHITECTURE ---------- */
+  .blueprint {
+    margin-top: 44px; background: var(--ink); border-radius: 8px; padding: 46px 34px;
+    background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  .bp-row { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .bp-node {
+    background: rgba(255,255,255,0.04); border: 1.5px dashed rgba(255,182,39,0.5);
+    border-radius: 6px; padding: 16px 18px; text-align: center; min-width: 130px;
+  }
+  .bp-node .lbl { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--amber); margin-bottom: 4px; }
+  .bp-node .sub { font-size: 11.5px; color: #A9B7D6; }
+  .bp-arrow { color: rgba(255,255,255,0.3); font-size: 20px; }
+  @media (max-width: 900px) {
+    .bp-row { flex-direction: column; }
+    .bp-arrow { transform: rotate(90deg); }
+  }
+
+  .stack-strip {
+    margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  }
+  .stack-chip {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #C9D3E5;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 14px;
+  }
+
+  /* ---------- IMPACT ---------- */
+  .impact-grid { margin-top: 44px; display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 40px; align-items: start; }
+  .sdg-badge {
+    background: var(--teal); color: white; border-radius: 8px; padding: 32px 26px;
+    text-align: center;
+  }
+  .sdg-badge .num { font-family: 'IBM Plex Mono', monospace; font-size: 44px; font-weight: 600; }
+  .sdg-badge .name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; text-transform: uppercase; margin-top: 4px; }
+  .sdg-badge .target { font-size: 12.5px; margin-top: 14px; opacity: 0.85; line-height: 1.5; }
+  .impact-list { display: flex; flex-direction: column; gap: 22px; }
+  .impact-item { display: flex; gap: 16px; }
+  .impact-item .mk { font-family: 'IBM Plex Mono', monospace; color: var(--amber-deep); font-weight: 600; font-size: 13px; flex-shrink: 0; padding-top: 2px; }
+  .impact-item h4 { font-size: 16.5px; color: var(--ink); margin-bottom: 5px; text-transform: none; font-weight: 700; font-family: 'Inter'; }
+  .impact-item p { font-size: 14px; color: var(--ink-soft); }
+  @media (max-width: 900px) { .impact-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- FOOTER ---------- */
+  footer { background: var(--ink); color: var(--paper); padding: 48px 0 30px; }
+  .footer-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 24px; }
+  .footer-tagline { font-size: 13.5px; color: #A9B7D6; margin-top: 6px; max-width: 320px; }
+  .footer-links { display: flex; gap: 30px; }
+  .footer-links a { font-size: 13.5px; color: #C9D3E5; }
+  .footer-links a:hover { color: var(--amber); }
+  .footer-bottom { padding-top: 22px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .footer-bottom p { font-size: 12.5px; color: #7E8CAA; font-family: 'IBM Plex Mono', monospace; }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 40px; }
+  }
+
+  /* ---------- AUTH BUTTON (nav) ---------- */
+  .auth-actions { display: flex; align-items: center; gap: 10px; }
+  .user-chip {
+    display: none;
+    align-items: center; gap: 8px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;
+    background: var(--paper-card); border: 1.5px solid var(--line);
+    padding: 7px 12px; border-radius: 20px;
+  }
+  .user-chip .av {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--teal);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; font-family: 'Inter';
+  }
+  .user-chip .logout-x { color: var(--ink-soft); cursor: pointer; font-weight: 700; }
+  .user-chip .logout-x:hover { color: var(--coral); }
+
+  /* ---------- AUTH MODAL ---------- */
+  .auth-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(20,33,61,0.55);
+    align-items: center; justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(3px);
+  }
+  .auth-overlay.open { display: flex; }
+  .auth-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    box-shadow: 10px 10px 0 rgba(20,33,61,0.12);
+    max-width: 400px; width: 100%;
+    padding: 30px 26px 26px;
+    animation: authIn 0.2s ease;
+  }
+  @keyframes authIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .auth-close {
+    position: absolute; top: 16px; right: 16px;
+    cursor: pointer; font-size: 18px; color: var(--ink-soft);
+    background: none; border: none; line-height: 1;
+  }
+  .auth-close:hover { color: var(--coral); }
+  .auth-tabs { display: flex; gap: 6px; margin-bottom: 22px; background: var(--paper); border-radius: 5px; padding: 4px; }
+  .auth-tab {
+    flex: 1; text-align: center; padding: 9px; font-size: 13.5px; font-weight: 600;
+    border-radius: 4px; cursor: pointer; color: var(--ink-soft); background: none; border: none;
+    font-family: 'Inter';
+  }
+  .auth-tab.active { background: var(--ink); color: var(--paper); }
+  .auth-heading {
+    font-size: 24px; text-transform: none; font-family: 'Barlow Condensed'; font-weight: 700;
+    color: var(--ink); margin-bottom: 5px;
+  }
+  .auth-sub { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 20px; }
+  .auth-label {
+    display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+    margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .auth-label input {
+    display: block; width: 100%; margin-top: 6px;
+    border: 1.5px solid var(--line); border-radius: 4px;
+    padding: 11px 13px; font-size: 14.5px; font-family: 'Inter'; font-weight: 400;
+    text-transform: none; letter-spacing: normal;
+    background: var(--paper); color: var(--ink); outline: none;
+  }
+  .auth-label input:focus { border-color: var(--teal); }
+  .auth-error {
+    display: none;
+    background: #FDECEA; color: var(--coral); border: 1px solid #F5C2BC;
+    font-size: 13px; padding: 9px 12px; border-radius: 4px; margin-bottom: 14px;
+  }
+  .auth-error.show { display: block; }
+  .auth-submit {
+    width: 100%; background: var(--amber); color: var(--ink); border: none;
+    padding: 13px; border-radius: 4px; font-weight: 700; font-size: 14.5px;
+    cursor: pointer; margin-top: 4px; font-family: 'Inter';
+  }
+  .auth-submit:hover { background: var(--amber-deep); }
+  .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .auth-footnote {
+    text-align: center; font-size: 11.5px; color: var(--ink-soft); margin-top: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo"><div class="logo-mark">CF</div>CivicFix</div>
+    <nav class="links">
+      <a href="#problem">The Problem</a>
+      <a href="#how">How It Works</a>
+      <a href="#dedupe">Dedupe</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#impact">Impact</a>
+    </nav>
+    <div class="auth-actions">
+      <a class="btn-gh" href="#" id="ghLink" target="_blank">View on GitHub →</a>
+      <button class="btn-gh" id="authNavBtn" style="background:var(--teal);" onclick="openAuthModal('login')">Sign In</button>
+      <div class="user-chip" id="userChip">
+        <div class="av" id="userAv">?</div>
+        <span id="userChipName"></span>
+        <span class="logout-x" id="logoutBtn" title="Sign out">✕</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== AUTH MODAL ===================== -->
+<div id="authOverlay" class="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuthModal()" aria-label="Close">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
+    </div>
+
+    <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+      <h3 id="authTitle" class="auth-heading">Welcome back</h3>
+      <p class="auth-sub">Sign in to track your filed complaints.</p>
+      <label class="auth-label">Email
+        <input type="email" id="loginEmail" required autocomplete="email">
+      </label>
+      <label class="auth-label">Password
+        <input type="password" id="loginPassword" required autocomplete="current-password">
+      </label>
+      <div class="auth-error" id="loginError"></div>
+      <button type="submit" class="auth-submit">Sign in</button>
+      <div class="auth-footnote mono">Demo auth — stored locally in this browser</div>
+    </form>
+
+    <form id="registerForm" class="auth-form" style="display:none;" onsubmit="handleRegister(event)">
+      <h3 class="auth-heading">Create your account</h3>
+      <p class="auth-sub">Register to report issues and follow their status.</p>
+      <label class="auth-label">Full name
+        <input type="text" id="registerName" required autocomplete="name">
+      </label>
+      <label class="auth-label">Email
+        <input type="email" id="registerEmail" required autocomplete="email">
+      </label>
+      <label class="auth-label">Password
+        <input type="password" id="registerPassword" required minlength="6" autocomplete="new-password">
+      </label>
+      <div class="auth-error" id="registerError"></div>
+      <button type="submit" class="auth-submit">Create account</button>
+      <div class="auth-footnote mono">Demo auth — stored locally in this browser</div>
+    </form>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="sq"></span>SDG 11 · SUSTAINABLE CITIES &amp; COMMUNITIES</div>
+      <h1>Report it once.<br>We'll <span class="accent">chase</span> it<br>until it's fixed.</h1>
+      <p class="lede">CivicFix is an agentic AI case-worker for civic complaints — it classifies your report, checks if your neighbours already flagged it, and keeps following up until someone acts.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="document.getElementById('userInput').focus()">Try the live demo →</button>
+        <a class="btn-secondary" href="#how">See how it works</a>
+      </div>
+      <div class="stat-strip">
+        <div class="stat"><b>11.2M+</b><span>Grievances via CPGRAMS '19–'24</span></div>
+        <div class="stat"><b>4-step</b><span>Agentic reasoning loop</span></div>
+        <div class="stat"><b>0</b><span>Duplicate cases filed</span></div>
+      </div>
+    </div>
+
+    <div class="kiosk">
+      <div class="kiosk-head">
+        <span class="title mono">CIVICFIX — INTAKE KIOSK</span>
+        <div class="live-dot" title="Live"></div>
+      </div>
+      <div id="configBanner">⚠️ Set your n8n webhook URL in WEBHOOK_URL near the top of the script.</div>
+      <div class="messages" id="messages">
+        <div class="msg bot">Welcome to CivicFix. Tell me what's happening in your area — a pothole, garbage pile-up, broken streetlight, or water issue — and I'll take care of the rest.</div>
+      </div>
+      <form class="composer" id="composer">
+        <input type="text" id="userInput" placeholder="Describe the issue..." autocomplete="off" required />
+        <button type="submit" id="sendBtn" aria-label="Send">➤</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">// THE PROBLEM</span>
+      <h2>Civic complaints get lost between citizens and city hall</h2>
+      <p>Reporting a broken streetlight shouldn't require navigating a government form built for a case worker, not a citizen.</p>
+    </div>
+    <div class="case-cards">
+      <div class="case-card">
+        <div class="case-no mono">CASE 00 — FRICTION</div>
+        <h3>Forms built for staff</h3>
+        <p>Rigid categories and lengthy fields make reporting an everyday issue unnecessarily hard for the person who noticed it.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-no mono">CASE 00 — NOISE</div>
+        <h3>The same pothole, five times</h3>
+        <p>One real issue gets reported separately by five neighbours, fragmenting priority instead of raising it.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-no mono">CASE 00 — SILENCE</div>
+        <h3>No one follows up</h3>
+        <p>Once filed, complaints vanish into inboxes with no tracking, no accountability, and no automatic follow-up.</p>
+      </div>
+    </div>
+    <div class="stat-block">
+      <div class="big mono">11.2M+</div>
+      <p>Grievances redressed via India's centralized CPGRAMS system between 2019–2024 — yet most systems still prioritize administrative process over the person filing the report.</p>
+      <div class="divider"></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">// CASE LIFECYCLE</span>
+      <h2>What happens after you hit send</h2>
+      <p>Every message runs through a real agentic loop — not a static form handler.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step">
+        <span class="tag mono">STAGE 01</span>
+        <h4>Report</h4>
+        <p>You describe the issue in plain language — text, no dropdowns, no subcategories to hunt through.</p>
+      </div>
+      <div class="flow-step">
+        <span class="tag mono">STAGE 02</span>
+        <h4>Classify</h4>
+        <p>The agent identifies category and urgency, and asks for a location only if you haven't given one.</p>
+      </div>
+      <div class="flow-step">
+        <span class="tag mono">STAGE 03</span>
+        <h4>De-duplicate</h4>
+        <p>It checks nearby open cases and merges matching reports instead of filing a fresh duplicate.</p>
+      </div>
+      <div class="flow-step">
+        <span class="tag mono">STAGE 04</span>
+        <h4>Track &amp; nudge</h4>
+        <p>A separate agent monitors open cases and drafts a follow-up if nothing moves.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dedupe">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">// STANDOUT FEATURE</span>
+      <h2>It recognizes when an issue is already known</h2>
+      <p>Instead of filing a duplicate, the agent reasons about similarity — same category, same block, same problem — and merges the report.</p>
+    </div>
+    <div class="dedupe-demo">
+      <div class="ticket">
+        <div class="who">Citizen A — 9:02 AM</div>
+        "Pothole near the Civil Lines bus stop, cars are swerving into traffic."
+        <div class="stamp amber" style="margin-top:12px;">Filed</div>
+      </div>
+      <div class="merge-arrow mono">⇒</div>
+      <div class="ticket merged">
+        <div class="who">Case #00142 — Pothole, Civil Lines</div>
+        Reported independently by 4 citizens between 9:02–11:40 AM. Priority boosted automatically.
+        <div class="stamp teal">Merged · 4 reports</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">// UNDER THE HOOD</span>
+      <h2>Built as a real agent pipeline</h2>
+      <p>Every box below is a live node — not a mockup.</p>
+    </div>
+    <div class="blueprint">
+      <div class="bp-row">
+        <div class="bp-node"><div class="lbl mono">CHAT UI</div><div class="sub">Text input</div></div>
+        <div class="bp-arrow">→</div>
+        <div class="bp-node"><div class="lbl mono">AGENT CORE</div><div class="sub">Classify + reason</div></div>
+        <div class="bp-arrow">→</div>
+        <div class="bp-node"><div class="lbl mono">DEDUPE CHECK</div><div class="sub">Search + compare</div></div>
+        <div class="bp-arrow">→</div>
+        <div class="bp-node"><div class="lbl mono">CASE STORE</div><div class="sub">Create / update</div></div>
+      </div>
+      <div class="stack-strip">
+        <span class="stack-chip">n8n orchestration</span>
+        <span class="stack-chip">Groq · Llama 3.3</span>
+        <span class="stack-chip">Airtable</span>
+        <span class="stack-chip">Vanilla JS frontend</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="impact">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">// WHY IT MATTERS</span>
+      <h2>Impact &amp; SDG alignment</h2>
+    </div>
+    <div class="impact-grid">
+      <div class="sdg-badge">
+        <div class="num mono">11</div>
+        <div class="name">Sustainable Cities</div>
+        <div class="target">Target 11.3 — Enhance inclusive, participatory urban planning and management.</div>
+      </div>
+      <div class="impact-list">
+        <div class="impact-item">
+          <div class="mk mono">01</div>
+          <div><h4>Lowers the barrier to reporting</h4><p>Plain-language input replaces rigid forms — no subcategories to hunt through.</p></div>
+        </div>
+        <div class="impact-item">
+          <div class="mk mono">02</div>
+          <div><h4>Sharper signal for city staff</h4><p>Deduplication surfaces genuine priority issues instead of noisy duplicate counts.</p></div>
+        </div>
+        <div class="impact-item">
+          <div class="mk mono">03</div>
+          <div><h4>Closes the accountability loop</h4><p>Autonomous follow-up nudges pick up where most grievance systems go silent.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">CivicFix</div>
+        <div class="footer-tagline">An agentic AI case-worker for civic complaints. Built for SDG 11 — Sustainable Cities and Communities.</div>
+      </div>
+      <div class="footer-links">
+        <a href="#problem">The Problem</a>
+        <a href="#how">How It Works</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#" id="ghLinkFooter" target="_blank">GitHub</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>n8n · Groq (Llama 3.3) · Airtable</p>
+      <p>Built for [YOUR HACKATHON NAME] · 2026</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ====================================================================
+  // CONFIG
+  // 1. Paste your n8n production webhook URL below.
+  // 2. Paste your GitHub repo URL to activate the nav/footer GitHub links.
+  // ====================================================================
+  const WEBHOOK_URL = "PASTE_YOUR_N8N_WEBHOOK_URL_HERE";
+  const GITHUB_URL = "https://github.com/YOUR_USERNAME/YOUR_REPO";
+
+  document.getElementById('ghLink').href = GITHUB_URL;
+  document.getElementById('ghLinkFooter').href = GITHUB_URL;
+
+  const messagesEl = document.getElementById('messages');
+  const form = document.getElementById('composer');
+  const input = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const configBanner = document.getElementById('configBanner');
+  const sessionId = 'web-' + Math.random().toString(36).slice(2) + Date.now();
+
+  if (WEBHOOK_URL.includes('PASTE_YOUR')) configBanner.style.display = 'block';
+
+  function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + sender;
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg typing';
+    div.id = 'typingIndicator';
+    div.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    input.value = '';
+    sendBtn.disabled = true;
+    addTyping();
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chatInput: text, sessionId, action: 'sendMessage' })
+      });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
+      const data = await response.json();
+      removeTyping();
+      const payload = Array.isArray(data) ? data[0] : data;
+      const reply = (payload && (payload.output || payload.text || payload.message))
+        || "Sorry, I didn't get a response. Please try again.";
+      addMessage(reply, 'bot');
+    } catch (err) {
+      removeTyping();
+      addMessage("Couldn't reach CivicFix right now. Please check your connection and try again.", 'bot');
+      console.error(err);
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  });
+
+  // ====================================================================
+  // AUTH (demo implementation)
+  // Accounts are stored in this browser's localStorage under 'civicfix_users'.
+  // This is intentionally client-side only, for demo purposes — it proves
+  // the login/register flow end-to-end without needing a backend.
+  //
+  // TO WIRE UP REAL BACKEND AUTH LATER:
+  // Replace the body of handleLogin() and handleRegister() with fetch()
+  // calls to two new n8n webhooks (e.g. a "Register" and "Login" workflow
+  // backed by an Airtable "Users" table), following the same pattern used
+  // for WEBHOOK_URL above.
+  // ====================================================================
+
+  const USERS_KEY = 'civicfix_users';
+  const SESSION_KEY = 'civicfix_session';
+
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+
+  function openAuthModal(tab) {
+    document.getElementById('authOverlay').classList.add('open');
+    switchAuthTab(tab || 'login');
+  }
+  function closeAuthModal() {
+    document.getElementById('authOverlay').classList.remove('open');
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('registerError').classList.remove('show');
+  }
+  document.getElementById('authOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'authOverlay') closeAuthModal();
+  });
+
+  function switchAuthTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('tabLogin').classList.toggle('active', isLogin);
+    document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+    document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+  }
+
+  function showAuthError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  function handleRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim().toLowerCase();
+    const password = document.getElementById('registerPassword').value;
+    const users = getUsers();
+
+    if (users.some(u => u.email === email)) {
+      showAuthError('registerError', 'An account with this email already exists. Try signing in instead.');
+      return;
+    }
+    users.push({ name, email, password });
+    saveUsers(users);
+    setSession({ name, email });
+    closeAuthModal();
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    const users = getUsers();
+    const match = users.find(u => u.email === email && u.password === password);
+
+    if (!match) {
+      showAuthError('loginError', 'Incorrect email or password. Please try again.');
+      return;
+    }
+    setSession({ name: match.name, email: match.email });
+    closeAuthModal();
+  }
+
+  function setSession(user) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    renderAuthState();
+  }
+
+  function logout() {
+    localStorage.removeItem(SESSION_KEY);
+    renderAuthState();
+  }
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  function renderAuthState() {
+    let session = null;
+    try { session = JSON.parse(localStorage.getItem(SESSION_KEY)); } catch {}
+    const navBtn = document.getElementById('authNavBtn');
+    const chip = document.getElementById('userChip');
+
+    if (session) {
+      navBtn.style.display = 'none';
+      chip.style.display = 'flex';
+      document.getElementById('userAv').textContent = session.name.trim()[0].toUpperCase();
+      document.getElementById('userChipName').textContent = session.name.split(' ')[0];
+    } else {
+      navBtn.style.display = 'inline-flex';
+      chip.style.display = 'none';
+    }
+  }
+
+  renderAuthState();
+</script>
+
+</body>
+</html>
